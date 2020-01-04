@@ -6,7 +6,7 @@ global.Buffer = Buffer;
 
 import request from './request';
 import { query } from '../util';
-var SafariView = require('react-native-safari-view');
+import RCTSFSafariViewController from 'react-native-sfsafariviewcontroller';
 
 function getRequestToken(tokens, callbackUrl, accessType) {
   const method = 'POST';
@@ -74,7 +74,7 @@ export default async function auth(
     accessType,
   );
   if (Platform.OS == 'ios') {
-    SafariView.show({
+    RCTSFSafariViewController.open({
       url: `https://api.twitter.com/oauth/${forSignIn ? 'authenticate' : 'authorize'}?${
         query({ oauth_token: requestToken, force_login: forceLogin, screen_name: screenName })
         }`
