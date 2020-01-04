@@ -6,7 +6,7 @@ global.Buffer = Buffer;
 
 import request from './request';
 import { query } from '../util';
-import RCTSFSafariViewController from 'react-native-sfsafariviewcontroller';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 function getRequestToken(tokens, callbackUrl, accessType) {
   const method = 'POST';
@@ -73,16 +73,28 @@ export default async function auth(
     usePin ? 'oob' : callbackUrl,
     accessType,
   );
-  if (Platform.OS == 'ios') {
-    RCTSFSafariViewController.open({
-      url: `https://api.twitter.com/oauth/${forSignIn ? 'authenticate' : 'authorize'}?${
-        query({ oauth_token: requestToken, force_login: forceLogin, screen_name: screenName })
-        }`
-    });
-  } else {
-    Linking.openURL(`https://api.twitter.com/oauth/${forSignIn ? 'authenticate' : 'authorize'}?${
-      query({ oauth_token: requestToken, force_login: forceLogin, screen_name: screenName })
-      }`);
+
+  var url = `https://api.twitter.com/oauth/${forSignIn ? 'authenticate' : 'authorize'}?${
+    query({ oauth_token: requestToken, force_login: forceLogin, screen_name: screenName })
+    }`
+  try {
+    if (await InAppBrowser.isAvailable()) {
+      InAppBrowser.openAuth(url, callbackUrl, {
+        // iOS Properties
+        dismissButtonStyle: 'cancel',
+        // Android Properties
+        showTitle: false,
+        enableUrlBarHiding: true,
+        enableDefaultShare: true
+      }).then((response) => {
+        if (response.type === 'success' &&
+          response.url) {
+          Linking.openURL(response.url)
+        }
+      })
+    } else Linking.openURL(url)
+  } catch (error) {
+    Linking.openURL(url)
   }
   return getAccessToken(
     { ...tokens, requestToken, requestTokenSecret },
