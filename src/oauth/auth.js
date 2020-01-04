@@ -1,4 +1,4 @@
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 
 import { URLSearchParams } from 'whatwg-url';
 import { Buffer } from 'buffer';
@@ -6,7 +6,8 @@ global.Buffer = Buffer;
 
 import request from './request';
 import { query } from '../util';
-import Browser from './browser'
+import { platform } from 'os';
+var SafariView = require('react-native-safari-view');
 
 function getRequestToken(tokens, callbackUrl, accessType) {
   const method = 'POST';
@@ -65,7 +66,6 @@ Linking.addEventListener('url', ({ url }) => {
 export default async function auth(
   tokens,
   callbackUrl,
-  navigation,
   { accessType, forSignIn = false, forceLogin = false, screenName = '' } = {},
 ) {
   const usePin = typeof callbackUrl.then === 'function';
@@ -74,15 +74,12 @@ export default async function auth(
     usePin ? 'oob' : callbackUrl,
     accessType,
   );
-  if (navigation) {
-    navigation.navigate(
-      'Browser',
-      {
-        url: `https://api.twitter.com/oauth/${forSignIn ? 'authenticate' : 'authorize'}?${
-          query({ oauth_token: requestToken, force_login: forceLogin, screen_name: screenName })
-          }`
-      }
-    )
+  if (Platform.OS == 'ios') {
+    SafariView.show({
+      url: `https://api.twitter.com/oauth/${forSignIn ? 'authenticate' : 'authorize'}?${
+        query({ oauth_token: requestToken, force_login: forceLogin, screen_name: screenName })
+        }`
+    });
   } else {
     Linking.openURL(`https://api.twitter.com/oauth/${forSignIn ? 'authenticate' : 'authorize'}?${
       query({ oauth_token: requestToken, force_login: forceLogin, screen_name: screenName })

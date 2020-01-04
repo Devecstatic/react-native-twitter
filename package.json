@@ -1,7 +1,7 @@
 {
   "name": "react-native-twitter",
   "description": "react-native-twitter",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "author": "Devecstatic",
   "ava": {
     "babel": {
@@ -30,6 +30,7 @@
     "buffer": "^5.4.3",
     "eventemitter3": "^2.0.3",
     "jssha": "^2.3.1",
+    "react-native-safari-view": "^2.1.0",
     "react-native-webview": "^8.0.2",
     "url-search-params": "^0.10.0"
   },
