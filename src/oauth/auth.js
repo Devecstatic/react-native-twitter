@@ -89,11 +89,16 @@ export default async function auth(
       }).then((response) => {
         if (response.type === 'success' &&
           response.url) {
+          console.log('Success')
           Linking.openURL(response.url)
         }
       })
-    } else Linking.openURL(url)
+    } else {
+      console.log('InApp browser is not available')
+      Linking.openURL(url)
+    }
   } catch (error) {
+    console.log(error)
     Linking.openURL(url)
   }
   return getAccessToken(
