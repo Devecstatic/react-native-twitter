@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import {
     View,
-    WebView,
     TouchableOpacity,
     Text
 } from 'react-native'
+
+import WebView from 'react-native-webview'
 
 const BackButton = ({ navigation }) =>
     <TouchableOpacity onPress={() => {
