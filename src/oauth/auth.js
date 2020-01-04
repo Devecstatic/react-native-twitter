@@ -89,7 +89,7 @@ export default async function auth(
       }).then((response) => {
         if (response.type === 'success' &&
           response.url) {
-          console.log('Success', response.url, callbackUrl, url)
+          console.log('Success', response.url, callbackUrl, url, response)
           Linking.openURL(response.url)
         }
       })
