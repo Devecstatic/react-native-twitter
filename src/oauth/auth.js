@@ -6,6 +6,7 @@ global.Buffer = Buffer;
 
 import request from './request';
 import { query } from '../util';
+import Browser from './browser'
 
 function getRequestToken(tokens, callbackUrl, accessType) {
   const method = 'POST';
@@ -64,6 +65,7 @@ Linking.addEventListener('url', ({ url }) => {
 export default async function auth(
   tokens,
   callbackUrl,
+  navigation,
   { accessType, forSignIn = false, forceLogin = false, screenName = '' } = {},
 ) {
   const usePin = typeof callbackUrl.then === 'function';
@@ -72,9 +74,20 @@ export default async function auth(
     usePin ? 'oob' : callbackUrl,
     accessType,
   );
-  Linking.openURL(`https://api.twitter.com/oauth/${forSignIn ? 'authenticate' : 'authorize'}?${
-    query({ oauth_token: requestToken, force_login: forceLogin, screen_name: screenName })
-    }`);
+  if (navigation) {
+    navigation.navigate(
+      'Browser',
+      {
+        url: `https://api.twitter.com/oauth/${forSignIn ? 'authenticate' : 'authorize'}?${
+          query({ oauth_token: requestToken, force_login: forceLogin, screen_name: screenName })
+          }`
+      }
+    )
+  } else {
+    Linking.openURL(`https://api.twitter.com/oauth/${forSignIn ? 'authenticate' : 'authorize'}?${
+      query({ oauth_token: requestToken, force_login: forceLogin, screen_name: screenName })
+      }`);
+  }
   return getAccessToken(
     { ...tokens, requestToken, requestTokenSecret },
     await (
