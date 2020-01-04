@@ -89,8 +89,17 @@ export default async function auth(
       }).then((response) => {
         if (response.type === 'success' &&
           response.url) {
-          console.log('Success', response.url, callbackUrl, url, response)
           Linking.openURL(response.url)
+          const params = new URLSearchParams(response.url.split('?')[1]);
+          if (params.has('oauth_token') && verifierDeferreds.has(params.get('oauth_token'))) {
+            const verifierDeferred = verifierDeferreds.get(params.get('oauth_token'));
+            verifierDeferreds.delete(params.get('oauth_token'));
+            if (params.has('oauth_verifier')) {
+              verifierDeferred.resolve(params.get('oauth_verifier'));
+            } else {
+              verifierDeferred.reject(new Error('denied'));
+            }
+          }
         }
       })
     } else {
