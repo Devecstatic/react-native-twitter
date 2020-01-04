@@ -78,25 +78,25 @@ export default async function auth(
     query({ oauth_token: requestToken, force_login: forceLogin, screen_name: screenName })
     }`
   try {
-    // if (await InAppBrowser.isAvailable()) {
-    InAppBrowser.openAuth(url, callbackUrl, {
-      // iOS Properties
-      dismissButtonStyle: 'cancel',
-      // Android Properties
-      showTitle: false,
-      enableUrlBarHiding: true,
-      enableDefaultShare: true
-    }).then((response) => {
-      if (response.type === 'success' &&
-        response.url) {
-        console.log('Success')
-        Linking.openURL(response.url)
-      }
-    })
-    // } else {
-    //   console.log('InApp browser is not available')
-    //   Linking.openURL(url)
-    // }
+    if (await InAppBrowser.isAvailable()) {
+      InAppBrowser.openAuth(url, callbackUrl, {
+        // iOS Properties
+        dismissButtonStyle: 'cancel',
+        // Android Properties
+        showTitle: false,
+        enableUrlBarHiding: true,
+        enableDefaultShare: true
+      }).then((response) => {
+        if (response.type === 'success' &&
+          response.url) {
+          console.log('Success')
+          Linking.openURL(response.url)
+        }
+      })
+    } else {
+      console.log('InApp browser is not available')
+      Linking.openURL(url)
+    }
   } catch (error) {
     console.log(error)
     Linking.openURL(url)
