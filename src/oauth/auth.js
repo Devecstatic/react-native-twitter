@@ -6,7 +6,6 @@ global.Buffer = Buffer;
 
 import request from './request';
 import { query } from '../util';
-import { platform } from 'os';
 var SafariView = require('react-native-safari-view');
 
 function getRequestToken(tokens, callbackUrl, accessType) {
