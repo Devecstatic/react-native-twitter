@@ -77,6 +77,8 @@ export default async function auth(
   var url = `https://api.twitter.com/oauth/${forSignIn ? 'authenticate' : 'authorize'}?${
     query({ oauth_token: requestToken, force_login: forceLogin, screen_name: screenName })
     }`
+
+  console.log(`About to request auth on platform ${Platform.OS}`)
   try {
     if (await InAppBrowser.isAvailable()) {
       console.log('In App Browser is available')
