@@ -65,7 +65,7 @@ Linking.addEventListener('url', ({ url }) => {
 export default async function auth(
   tokens,
   callbackUrl,
-  { accessType, forSignIn = false, forceLogin = false, screenName = '' } = {},
+  { accessType, forSignIn = false, forceLogin = false, screenName = '' } = {}, shouldUseInAppBrowser = true
 ) {
   const usePin = typeof callbackUrl.then === 'function';
   const { requestToken, requestTokenSecret } = await getRequestToken(
@@ -79,38 +79,42 @@ export default async function auth(
     }`
 
   console.log(`About to request auth on platform ${Platform.OS}`)
-  try {
-    if (await InAppBrowser.isAvailable()) {
-      console.log('In App Browser is available')
-      InAppBrowser.openAuth(url, callbackUrl, {
-        // iOS Properties
-        dismissButtonStyle: 'cancel',
-        // Android Properties
-        showTitle: false,
-        enableUrlBarHiding: true,
-        enableDefaultShare: true
-      }).then((response) => {
-        if (response.type === 'success' &&
-          response.url) {
-          Linking.openURL(response.url)
-          const params = new URLSearchParams(response.url.split('?')[1]);
-          if (params.has('oauth_token') && verifierDeferreds.has(params.get('oauth_token'))) {
-            const verifierDeferred = verifierDeferreds.get(params.get('oauth_token'));
-            verifierDeferreds.delete(params.get('oauth_token'));
-            if (params.has('oauth_verifier')) {
-              verifierDeferred.resolve(params.get('oauth_verifier'));
-            } else {
-              verifierDeferred.reject(new Error('denied'));
+  if (shouldUseInAppBrowser) {
+    try {
+      if (await InAppBrowser.isAvailable()) {
+        console.log('In App Browser is available')
+        InAppBrowser.openAuth(url, callbackUrl, {
+          // iOS Properties
+          dismissButtonStyle: 'cancel',
+          // Android Properties
+          showTitle: false,
+          enableUrlBarHiding: true,
+          enableDefaultShare: true
+        }).then((response) => {
+          if (response.type === 'success' &&
+            response.url) {
+            Linking.openURL(response.url)
+            const params = new URLSearchParams(response.url.split('?')[1]);
+            if (params.has('oauth_token') && verifierDeferreds.has(params.get('oauth_token'))) {
+              const verifierDeferred = verifierDeferreds.get(params.get('oauth_token'));
+              verifierDeferreds.delete(params.get('oauth_token'));
+              if (params.has('oauth_verifier')) {
+                verifierDeferred.resolve(params.get('oauth_verifier'));
+              } else {
+                verifierDeferred.reject(new Error('denied'));
+              }
             }
           }
-        }
-      })
-    } else {
-      console.log('InApp browser is not available')
+        })
+      } else {
+        console.log('InApp browser is not available')
+        Linking.openURL(url)
+      }
+    } catch (error) {
+      console.log(error)
       Linking.openURL(url)
     }
-  } catch (error) {
-    console.log(error)
+  } else {
     Linking.openURL(url)
   }
   return getAccessToken(
