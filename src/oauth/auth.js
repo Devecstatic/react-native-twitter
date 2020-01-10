@@ -79,6 +79,7 @@ export default async function auth(
     }`
   try {
     if (await InAppBrowser.isAvailable()) {
+      console.log('In App Browser is available')
       InAppBrowser.openAuth(url, callbackUrl, {
         // iOS Properties
         dismissButtonStyle: 'cancel',
